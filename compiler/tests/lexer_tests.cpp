@@ -4,7 +4,7 @@
 using tt = tonic::TokenType;
 
 TEST(LexerTests, Function) {
-    std::string code = "// switch\n"
+    std::string code = "// comment here\n"
                        "int sum(a, b: int):\n"
                        "  return a + b\n";
 
