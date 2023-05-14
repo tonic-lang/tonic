@@ -312,3 +312,48 @@ TEST(LexerTests, Ranges) {
                                                << tokens[i].lexeme;
     }
 }
+
+TEST(LexerTests, FotRange) {
+    std::string code = "for i in 0..20:\n"
+                       "  out i\n"
+                       "for i in start..end:\n"
+                       "  out i";
+
+    std::vector<tt> expected = {
+            tt::FOR,
+            tt::IDENTIFIER,
+            tt::IN,
+            tt::LITERAL,
+            tt::FOR_RANGE,
+            tt::LITERAL,
+            tt::COLON,
+            tt::NEWLINE,
+            tt::INDENT,
+            tt::OUT,
+            tt::IDENTIFIER,
+            tt::NEWLINE,
+            tt::DEDENT,
+            tt::FOR,
+            tt::IDENTIFIER,
+            tt::IN,
+            tt::IDENTIFIER,
+            tt::FOR_RANGE,
+            tt::IDENTIFIER,
+            tt::COLON,
+            tt::NEWLINE,
+            tt::INDENT,
+            tt::OUT,
+            tt::IDENTIFIER,
+            tt::EOF_TOKEN
+    };
+
+    tonic::Lexer lexer(code);
+    std::vector<tonic::Token> tokens = lexer.Tokenize();
+
+    ASSERT_EQ(expected.size(), tokens.size()) << "Expected and result token sizes are different";
+
+    for (int i = 0; i < tokens.size(); i++) {
+        ASSERT_EQ(expected[i], tokens[i].type) << "Expected and result token is different at " << i << " and lexeme: "
+                                               << tokens[i].lexeme;
+    }
+}
