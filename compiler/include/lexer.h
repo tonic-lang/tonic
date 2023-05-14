@@ -14,6 +14,7 @@ namespace tonic {
 
     const std::string CPP_TAG = "#cpp";
     const std::string END_TAG = "#end";
+    const std::string FOR_DOTS = "..";
 
     enum class TokenType {
         // basic
@@ -86,8 +87,6 @@ namespace tonic {
 
         // preprocessor directives
         HASHTAG,
-        CPP,
-        END,
 
         // cpp directive
         CPP_DIRECTIVE,
@@ -95,7 +94,6 @@ namespace tonic {
         // second pass
         TYPE,
         FOR_RANGE,
-        SLICE_RANGE,
         MEMOIZE,
         LAMBDA,
         CPP_CHUNK,

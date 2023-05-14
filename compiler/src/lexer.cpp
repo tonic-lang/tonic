@@ -197,16 +197,9 @@ namespace tonic {
                 } else {
                     new_tokens.push_back(tokens[i]);
                 }
-            } else if (tokens[i] == TokenType::LSQUARE && i < tokens.size() - 2 &&
-                       tokens[i + 2].type == TokenType::COLON) {
-                new_tokens.emplace_back(
-                        TokenType::SLICE_RANGE,
-                        tokens[i].lexeme + tokens[i + 1].lexeme + tokens[i + 2].lexeme,
-                        tokens[i].line);
-                i += 2; // might be wrong, please check
             } else if (tokens[i] == TokenType::DOT && i < tokens.size() - 1 &&
                        tokens[i + 1] == TokenType::DOT) {
-                new_tokens.emplace_back(TokenType::FOR_RANGE, "..", tokens[i].line);
+                new_tokens.emplace_back(TokenType::FOR_RANGE, FOR_DOTS, tokens[i].line);
                 ++i;
             } else {
                 if (tokens[i] == TokenType::SEMICOLON) {

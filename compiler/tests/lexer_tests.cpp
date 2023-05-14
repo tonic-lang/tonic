@@ -288,3 +288,27 @@ TEST(LexerTests, SwitchCase) {
                                                << tokens[i].lexeme;
     }
 }
+
+TEST(LexerTests, Ranges) {
+    std::string code = "arr[2:5]";
+
+    std::vector<tt> expected = {
+            tt::IDENTIFIER,
+            tt::LSQUARE,
+            tt::LITERAL,
+            tt::COLON,
+            tt::LITERAL,
+            tt::RSQUARE,
+            tt::EOF_TOKEN
+    };
+
+    tonic::Lexer lexer(code);
+    std::vector<tonic::Token> tokens = lexer.Tokenize();
+
+    ASSERT_EQ(expected.size(), tokens.size()) << "Expected and result token sizes are different";
+
+    for (int i = 0; i < tokens.size(); i++) {
+        ASSERT_EQ(expected[i], tokens[i].type) << "Expected and result token is different at " << i << " and lexeme: "
+                                               << tokens[i].lexeme;
+    }
+}
