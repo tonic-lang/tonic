@@ -289,7 +289,7 @@ TEST(LexerTests, SwitchCase) {
     }
 }
 
-TEST(LexerTests, Ranges) {
+TEST(LexerTests, SliceRange) {
     std::string code = "arr[2:5]";
 
     std::vector<tt> expected = {
@@ -313,7 +313,7 @@ TEST(LexerTests, Ranges) {
     }
 }
 
-TEST(LexerTests, FotRange) {
+TEST(LexerTests, ForRange) {
     std::string code = "for i in 0..20:\n"
                        "  out i\n"
                        "for i in start..end:\n"
@@ -344,6 +344,95 @@ TEST(LexerTests, FotRange) {
             tt::INDENT,
             tt::OUT,
             tt::IDENTIFIER,
+            tt::EOF_TOKEN
+    };
+
+    tonic::Lexer lexer(code);
+    std::vector<tonic::Token> tokens = lexer.Tokenize();
+
+    ASSERT_EQ(expected.size(), tokens.size()) << "Expected and result token sizes are different";
+
+    for (int i = 0; i < tokens.size(); i++) {
+        ASSERT_EQ(expected[i], tokens[i].type) << "Expected and result token is different at " << i << " and lexeme: "
+                                               << tokens[i].lexeme;
+    }
+}
+
+TEST(LexerTests, ShiftsAndI0) {
+    std::string code = "ofstream ostrm(filename, ios::binary)\n"
+                       "ostrm.write(reinterpret_cast<char*>(&d), sizeof d)\n"
+                       "ostrm << 123 << \"abc\" << '\\n'\n"
+                       "a: int\n"
+                       "in << a\n"
+                       "out >> \"output: \" >> a >> '\\n'";
+
+    std::vector<tt> expected = {
+            tt::TYPE,
+            tt::IDENTIFIER,
+            tt::LPAREN,
+            tt::IDENTIFIER,
+            tt::COMMA,
+            tt::IDENTIFIER,
+            tt::RPAREN,
+            tt::NEWLINE,
+            tt::IDENTIFIER,
+            tt::DOT,
+            tt::IDENTIFIER,
+            tt::LPAREN,
+            tt::IDENTIFIER,
+            tt::LPAREN,
+            tt::AMPERSAND,
+            tt::IDENTIFIER,
+            tt::RPAREN,
+            tt::COMMA,
+            tt::SIZEOF,
+            tt::IDENTIFIER,
+            tt::RPAREN,
+            tt::NEWLINE,
+            tt::IDENTIFIER,
+            tt::SHIFT_LEFT,
+            tt::LITERAL,
+            tt::SHIFT_LEFT,
+            tt::LITERAL,
+            tt::SHIFT_LEFT,
+            tt::LITERAL,
+            tt::NEWLINE,
+            tt::IDENTIFIER,
+            tt::COLON,
+            tt::TYPE,
+            tt::NEWLINE,
+            tt::IN,
+            tt::SHIFT_LEFT,
+            tt::IDENTIFIER,
+            tt::NEWLINE,
+            tt::OUT,
+            tt::SHIFT_RIGHT,
+            tt::LITERAL,
+            tt::SHIFT_RIGHT,
+            tt::IDENTIFIER,
+            tt::SHIFT_RIGHT,
+            tt::LITERAL,
+            tt::EOF_TOKEN
+    };
+
+    tonic::Lexer lexer(code);
+    std::vector<tonic::Token> tokens = lexer.Tokenize();
+
+    ASSERT_EQ(expected.size(), tokens.size()) << "Expected and result token sizes are different";
+
+    for (int i = 0; i < tokens.size(); i++) {
+        ASSERT_EQ(expected[i], tokens[i].type) << "Expected and result token is different at " << i << " and lexeme: "
+                                               << tokens[i].lexeme;
+    }
+}
+
+TEST(LexerTests, HexLiteral) {
+    std::string code = "a = 0x1A";
+
+    std::vector<tt> expected = {
+            tt::IDENTIFIER,
+            tt::EQ,
+            tt::LITERAL,
             tt::EOF_TOKEN
     };
 

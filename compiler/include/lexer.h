@@ -14,7 +14,11 @@ namespace tonic {
 
     const std::string CPP_TAG = "#cpp";
     const std::string END_TAG = "#end";
+    const std::string SHIFT_LEFT_STR = "<<";
+    const std::string SHIFT_RIGHT_STR = ">>";
     const std::string FOR_DOTS = "..";
+    const std::string MEMOIZE_TAG = "@memoize";
+    const std::string ARROW_STR = "=>";
 
     enum class TokenType {
         // basic
@@ -47,6 +51,10 @@ namespace tonic {
         AT,
         GT,
         LT,
+
+        // other operators
+        SHIFT_RIGHT,
+        SHIFT_LEFT,
 
         // brackets
         LCURLY,
@@ -84,6 +92,8 @@ namespace tonic {
         WHILE,
         BREAK,
         CONST,
+        CONSTEXPR,
+        SIZEOF,
 
         // preprocessor directives
         HASHTAG,
@@ -146,6 +156,8 @@ namespace tonic {
 
         void HandleNumbers();
 
+        void HandleHex();
+
         void HandleString();
 
         void HandleCharacter();
@@ -154,8 +166,28 @@ namespace tonic {
 
         bool HandleTemplateExpression();
 
+        bool CheckMemoize(size_t i);
+
+        bool CheckLambda(size_t i);
+
+        bool CheckConst(size_t i);
+
+        bool CheckConstexpr(size_t i);
+
+        bool CheckIdentifier(size_t i);
+
+        bool CheckForRange(size_t i);
+
+        bool CheckShiftLeft(size_t i);
+
+        bool CheckShiftRight(size_t i);
+
+        bool CheckType(size_t i);
+
+        bool CheckSemicolon(size_t i);
+
         std::string source;
-        std::vector<Token> tokens;
+        std::vector<Token> first_pass_tokens;
         size_t first_pass_start;
         size_t first_pass_current;
         size_t first_pass_line;

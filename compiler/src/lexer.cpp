@@ -138,8 +138,11 @@ namespace tonic {
                     ++first_pass_current;
                     break;
                 default:
-                    if (std::isalpha(c) || c == '_') {  // first char is alpha or _
+                    if (std::isalpha(c) || c == '_' || c == '~') {
                         HandleIdentifiers();
+                    } else if (c == '0' && first_pass_current < source.size() - 1 &&
+                               (source[first_pass_current + 1] == 'x' || source[first_pass_current + 1] == 'X')) {
+                        HandleHex();
                     } else if (std::isdigit(c)) {
                         HandleNumbers();
                     } else if (c == '"' || c == '\'') {
@@ -157,57 +160,47 @@ namespace tonic {
         }
 
         AddToken(TokenType::EOF_TOKEN, "");
-        return tokens;
+        return first_pass_tokens;
     }
 
     std::vector<Token> Lexer::SecondPass() {
         std::vector<Token> new_tokens;
         size_t i = 0;
-        while (i < tokens.size()) {
-            if (tokens[i] == TokenType::AT && i < tokens.size() - 1 &&
-                tokens[i + 1] == TokenType::IDENTIFIER &&
-                tokens[i + 1].lexeme == "memoize") {
-                new_tokens.emplace_back(TokenType::MEMOIZE, "@memoize", tokens[i].line);
+        while (i < first_pass_tokens.size()) {
+            if (CheckMemoize(i)) {
+                new_tokens.emplace_back(TokenType::MEMOIZE, MEMOIZE_TAG, first_pass_tokens[i].line);
                 ++i;
-            } else if (tokens[i] == TokenType::EQ && i < tokens.size() - 1 &&
-                       tokens[i + 1] == TokenType::GT) {
-                new_tokens.emplace_back(TokenType::LAMBDA, "=>", tokens[i].line);
+            } else if (CheckLambda(i)) {
+                new_tokens.emplace_back(TokenType::LAMBDA, ARROW_STR, first_pass_tokens[i].line);
                 ++i;
-            } else if (tokens[i] == TokenType::CONST) {
-                if ((i >= tokens.size() - 1 || tokens[i + 1] != TokenType::IDENTIFIER) ||
-                    (i <= 0 || tokens[i - 1] != TokenType::COLON)) {
+            } else if (CheckConst(i) || CheckConstexpr(i)) {
+                if ((i >= first_pass_tokens.size() - 1 || first_pass_tokens[i + 1] != TokenType::IDENTIFIER) ||
+                    (i <= 0 || first_pass_tokens[i - 1] != TokenType::COLON)) {
                     throw std::runtime_error("Syntax error: Please use const next to a type declaration");
                 }
-
-                new_tokens.emplace_back(TokenType::TYPE, tokens[i].lexeme + " " + tokens[i + 1].lexeme, tokens[i].line);
+                new_tokens.emplace_back(TokenType::TYPE,
+                                        first_pass_tokens[i].lexeme + " " + first_pass_tokens[i + 1].lexeme,
+                                        first_pass_tokens[i].line);
                 ++i;
-            } else if (tokens[i] == TokenType::IDENTIFIER) {
-                if (i > 0 && tokens[i - 1] == TokenType::COLON) {
-                    new_tokens.emplace_back(TokenType::TYPE, tokens[i].lexeme,
-                                            tokens[i].line);
-                } else if (i < tokens.size() - 2 &&
-                           tokens[i + 1] == TokenType::IDENTIFIER &&
-                           tokens[i + 2] == TokenType::LPAREN) {
-                    new_tokens.emplace_back(TokenType::TYPE, tokens[i].lexeme,
-                                            tokens[i].line);
-                } else if (i < tokens.size() - 1 &&
-                           tokens[i + 1] == TokenType::IDENTIFIER) {
-                    new_tokens.emplace_back(TokenType::TYPE, tokens[i].lexeme,
-                                            tokens[i].line);
-                } else {
-                    new_tokens.push_back(tokens[i]);
-                }
-            } else if (tokens[i] == TokenType::DOT && i < tokens.size() - 1 &&
-                       tokens[i + 1] == TokenType::DOT) {
-                new_tokens.emplace_back(TokenType::FOR_RANGE, FOR_DOTS, tokens[i].line);
+            } else if (CheckType(i)) {
+                new_tokens.emplace_back(TokenType::TYPE, first_pass_tokens[i].lexeme, first_pass_tokens[i].line);
+            } else if (CheckIdentifier(i)) {
+                new_tokens.push_back(first_pass_tokens[i]);
+            } else if (CheckForRange(i)) {
+                new_tokens.emplace_back(TokenType::FOR_RANGE, FOR_DOTS, first_pass_tokens[i].line);
+                ++i;
+            } else if (CheckShiftLeft(i)) {
+                new_tokens.emplace_back(TokenType::SHIFT_LEFT, SHIFT_LEFT_STR, first_pass_tokens[i].line);
+                ++i;
+            } else if (CheckShiftRight(i)) {
+                new_tokens.emplace_back(TokenType::SHIFT_RIGHT, SHIFT_RIGHT_STR, first_pass_tokens[i].line);
                 ++i;
             } else {
-                if (tokens[i] == TokenType::SEMICOLON) {
+                if (CheckSemicolon(i)) {
                     throw std::runtime_error(
                             "Syntax error: Semi-colons are not supported in Tonic. Please use the #cpp directive to use C++ code");
                 }
-
-                new_tokens.push_back(tokens[i]);
+                new_tokens.push_back(first_pass_tokens[i]);
             }
             ++i;
         }
@@ -215,9 +208,72 @@ namespace tonic {
     }
 
     std::vector<Token> Lexer::Tokenize() {
-        tokens = FirstPass();
-        tokens = SecondPass();
-        return tokens;
+        first_pass_tokens = FirstPass();
+        first_pass_tokens = SecondPass();
+        return first_pass_tokens;
+    }
+
+    bool Lexer::CheckSemicolon(size_t i) {
+        return first_pass_tokens[i] == TokenType::SEMICOLON;
+    }
+
+    bool Lexer::CheckType(size_t i) {
+        if (first_pass_tokens[i] == TokenType::IDENTIFIER) {
+            if (i > 0 && first_pass_tokens[i - 1] == TokenType::COLON) {
+                return true;
+            } else if (i < first_pass_tokens.size() - 2 &&
+                       first_pass_tokens[i + 1] == TokenType::IDENTIFIER &&
+                       first_pass_tokens[i + 2] == TokenType::LPAREN) {
+                return true;
+            } else if (i < first_pass_tokens.size() - 1 &&
+                       first_pass_tokens[i + 1] == TokenType::IDENTIFIER) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    bool Lexer::CheckMemoize(size_t i) {
+        return first_pass_tokens[i] == TokenType::AT &&
+               i < first_pass_tokens.size() - 1 &&
+               first_pass_tokens[i + 1] == TokenType::IDENTIFIER &&
+               first_pass_tokens[i + 1].lexeme == "memoize";
+    }
+
+    bool Lexer::CheckLambda(size_t i) {
+        return first_pass_tokens[i] == TokenType::EQ &&
+               i < first_pass_tokens.size() - 1 &&
+               first_pass_tokens[i + 1] == TokenType::GT;
+    }
+
+    bool Lexer::CheckConst(size_t i) {
+        return first_pass_tokens[i] == TokenType::CONST;
+    }
+
+    bool Lexer::CheckConstexpr(size_t i) {
+        return first_pass_tokens[i] == TokenType::CONSTEXPR;
+    }
+
+    bool Lexer::CheckIdentifier(size_t i) {
+        return first_pass_tokens[i] == TokenType::IDENTIFIER;
+    }
+
+    bool Lexer::CheckForRange(size_t i) {
+        return first_pass_tokens[i] == TokenType::DOT &&
+               i < first_pass_tokens.size() - 1 &&
+               first_pass_tokens[i + 1] == TokenType::DOT;
+    }
+
+    bool Lexer::CheckShiftLeft(size_t i) {
+        return first_pass_tokens[i] == TokenType::LT &&
+               i < first_pass_tokens.size() - 1 &&
+               first_pass_tokens[i + 1] == TokenType::LT;
+    }
+
+    bool Lexer::CheckShiftRight(size_t i) {
+        return first_pass_tokens[i] == TokenType::GT &&
+               i < first_pass_tokens.size() - 1 &&
+               first_pass_tokens[i + 1] == TokenType::GT;
     }
 
     void Lexer::HandlePreprocessor() {
@@ -289,7 +345,7 @@ namespace tonic {
     }
 
     void Lexer::AddToken(TokenType type, const std::string &text) {
-        tokens.emplace_back(type, text, first_pass_line);
+        first_pass_tokens.emplace_back(type, text, first_pass_line);
     }
 
     void Lexer::SkipWhitespace() {
@@ -361,6 +417,8 @@ namespace tonic {
                 {"default",   TokenType::DEFAULT},
                 {"break",     TokenType::BREAK},
                 {"const",     TokenType::CONST},
+                {"constexpr",     TokenType::CONSTEXPR},
+                {"sizeof",    TokenType::SIZEOF},
         };
 
         auto keyword_it = keywords.find(identifier);
@@ -408,19 +466,8 @@ namespace tonic {
                 } else if (angle_brackets_count == 0) {
                     return true;
                 }
-            } else if (source[first_pass_current] == ',' && angle_brackets_count == 1) {
-                ++first_pass_current;
-            } else if (std::isalnum(source[first_pass_current]) || source[first_pass_current] == '_') {
-                ++first_pass_current;
-            } else if (source[first_pass_current] == ':' && first_pass_current < source.size() - 1 &&
-                       source[first_pass_current + 1] == ':') {
-                first_pass_current += 2;
-            } else if (std::isspace(source[first_pass_current])) {
-                ++first_pass_current;
             } else {
-                throw std::runtime_error(
-                        "Syntax error: Unexpected character '" + std::string(1, source[first_pass_current]) +
-                        "' in template expression");
+                ++first_pass_current;
             }
         }
         if (angle_brackets_count > 0) {
@@ -429,13 +476,23 @@ namespace tonic {
         return false;
     }
 
+    void Lexer::HandleHex() {
+        first_pass_current += 2;
+
+        while (first_pass_current < source.size() && std::isxdigit(source[first_pass_current])) {
+            ++first_pass_current;
+        }
+
+        AddToken(TokenType::LITERAL, source.substr(first_pass_start, first_pass_current - first_pass_start));
+    }
+
     void Lexer::HandleNumbers() {
         while (first_pass_current < source.size() && std::isdigit(source[first_pass_current])) {
             ++first_pass_current;
         }
 
         if (first_pass_current < source.size() && source[first_pass_current] == '.' &&
-            std::isdigit(source[first_pass_current + 1])) {
+            (std::isdigit(source[first_pass_current + 1]))) {
             ++first_pass_current;
             while (first_pass_current < source.size() && std::isdigit(source[first_pass_current])) {
                 ++first_pass_current;
