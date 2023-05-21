@@ -8,6 +8,10 @@ namespace tonic {
             : source(std::move(source)), first_pass_start(0), first_pass_current(0), first_pass_line(1),
               first_pass_indentation_level(0) {}
 
+    ////////////////////////////////
+    // Top-level tokenizer passes //
+    ////////////////////////////////
+
     std::vector<Token> Lexer::FirstPass() {
         while (first_pass_current < source.size()) {
             first_pass_start = first_pass_current;
@@ -213,6 +217,12 @@ namespace tonic {
         return first_pass_tokens;
     }
 
+    ////////////////////////////
+    // Bottom level functions //
+    ////////////////////////////
+
+    // - Checker functions for second pass
+
     bool Lexer::CheckSemicolon(size_t i) {
         return first_pass_tokens[i] == TokenType::SEMICOLON;
     }
@@ -275,6 +285,8 @@ namespace tonic {
                i < first_pass_tokens.size() - 1 &&
                first_pass_tokens[i + 1] == TokenType::GT;
     }
+
+    // - Handlers for different token types
 
     void Lexer::HandlePreprocessor() {
         first_pass_current++;
