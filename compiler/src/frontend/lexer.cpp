@@ -1,3 +1,13 @@
+/**
+ * Licensed under the Apache License, Version 2.0;
+ * Please find the license in the repository .LICENSE file here:
+ * https://github.com/tonic-lang/tonic/blob/main/LICENSE
+ *
+ * @brief Tokenizer implementation. Passes through source code once,
+ * then again on the first set of tokens - to generate the final
+ * tokenized representation.
+ */
+
 #include "lexer.h"
 
 #include <utility>
