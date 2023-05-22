@@ -230,18 +230,21 @@ namespace tonic {
     }
 
     bool Lexer::CheckType(size_t i) {
-        if (first_pass_tokens[i] == TokenType::IDENTIFIER) {
-            if (i > 0 && first_pass_tokens[i - 1] == TokenType::COLON) {
-                return true;
-            } else if (i < first_pass_tokens.size() - 2 &&
-                       first_pass_tokens[i + 1] == TokenType::IDENTIFIER &&
-                       first_pass_tokens[i + 2] == TokenType::LPAREN) {
-                return true;
-            } else if (i < first_pass_tokens.size() - 1 &&
-                       first_pass_tokens[i + 1] == TokenType::IDENTIFIER) {
-                return true;
-            }
-        }
+        if (first_pass_tokens[i] != TokenType::IDENTIFIER)
+            return false;
+
+        if (i > 0 && first_pass_tokens[i - 1] == TokenType::COLON)
+            return true;
+
+        if (i < first_pass_tokens.size() - 1 && first_pass_tokens[i + 1] == TokenType::IDENTIFIER)
+            return true;
+
+        // specifically for function definitions
+        if (i < first_pass_tokens.size() - 2 &&
+            first_pass_tokens[i + 1] == TokenType::IDENTIFIER &&
+            first_pass_tokens[i + 2] == TokenType::LPAREN)
+            return true;
+
         return false;
     }
 
