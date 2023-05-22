@@ -4,11 +4,11 @@ A superset language of C++, designed specifically for fast-paced competitive pro
 Currently in (very) early stages of development.
 
 ## Why Tonic?
-- Significantly less verbose than C++, designed with simplicity and expressiveness in mind.
-- Complete compatibility with C++, as Tonic allows you to use C++ components directly.
-- More built-in algorithms and data-structures than the C++ standard library.
-- Effective debugging and tracing of function calls.
-- Compiling to readable C++ ensures Tonic can be used in competitions with C++ support.
+- Aims to be significantly less verbose than C++, geared towards competitions. That means lower macro usage than C++.
+- Directly allows usage of C++ components.
+- Low abstraction or overhead to keep runtime speed intact.
+- Some competitive programming specific functionality including additional data structures, algorithms, tracing and debugging capabilities (in-progress).
+- Since it compiles to C++ as a superset, the code can be directly used in competitions that support C++.
 - Goodbye, macros (mostly).
 
 ## Documentation

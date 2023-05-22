@@ -8,9 +8,10 @@
  * tokenized representation.
  */
 
-#include "lexer.h"
-
 #include <utility>
+
+#include "lexer.h"
+#include "errors.h" // update errors
 
 namespace tonic {
 
