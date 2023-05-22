@@ -11,7 +11,7 @@
 #include <utility>
 
 #include "lexer.h"
-#include "errors.h" // update errors
+#include "errors.h" // TODO: update errors, modify errors to take in line, chunk (lexeme in this case)
 
 namespace tonic {
 
