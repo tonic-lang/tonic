@@ -3,7 +3,7 @@ project(tonic)
 
 set(CMAKE_CXX_STANDARD 23)
 
-include_directories(compiler/include)
+include_directories(compiler/include compiler/include/frontend compiler/include/backend)
 
 # gtest
 include(FetchContent)

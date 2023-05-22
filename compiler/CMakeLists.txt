@@ -1,4 +1,4 @@
-file(GLOB SOURCES "src/*.cpp")
+file(GLOB SOURCES "src/*.cpp" "src/*/*.cpp")
 
 add_library(compiler ${SOURCES})
 

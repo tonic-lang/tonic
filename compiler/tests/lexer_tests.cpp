@@ -1,4 +1,4 @@
-#include "lexer.h"
+#include "frontend/lexer.h"
 #include "gtest/gtest.h"
 
 using tt = tonic::TokenType;

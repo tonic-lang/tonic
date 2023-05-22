@@ -15,8 +15,8 @@ namespace tonic {
     std::vector<Token> Lexer::FirstPass() {
         while (first_pass_current < source.size()) {
             first_pass_start = first_pass_current;
-
             char c = source[first_pass_current];
+
             switch (c) {
                 case ';':
                     AddToken(TokenType::SEMICOLON, ";");
@@ -170,6 +170,7 @@ namespace tonic {
     std::vector<Token> Lexer::SecondPass() {
         std::vector<Token> new_tokens;
         size_t i = 0;
+
         while (i < first_pass_tokens.size()) {
             if (CheckMemoize(i)) {
                 new_tokens.emplace_back(TokenType::MEMOIZE, MEMOIZE_TAG, first_pass_tokens[i].line);
@@ -180,7 +181,7 @@ namespace tonic {
             } else if (CheckConst(i) || CheckConstexpr(i)) {
                 if ((i >= first_pass_tokens.size() - 1 || first_pass_tokens[i + 1] != TokenType::IDENTIFIER) ||
                     (i <= 0 || first_pass_tokens[i - 1] != TokenType::COLON)) {
-                    throw std::runtime_error("Syntax error: Please use const next to a type declaration");
+                    throw std::runtime_error("Syntax error: Please use const or constexpr before a type");
                 }
                 new_tokens.emplace_back(TokenType::TYPE,
                                         first_pass_tokens[i].lexeme + " " + first_pass_tokens[i + 1].lexeme,
@@ -202,12 +203,13 @@ namespace tonic {
             } else {
                 if (CheckSemicolon(i)) {
                     throw std::runtime_error(
-                            "Syntax error: Semi-colons are not supported in Tonic. Please use the #cpp directive to use C++ code");
+                            "Syntax error: Semi-colons are not supported in this version of Tonic. Please use the #cpp directive to use C++ code");
                 }
                 new_tokens.push_back(first_pass_tokens[i]);
             }
             ++i;
         }
+
         return new_tokens;
     }
 
@@ -286,7 +288,7 @@ namespace tonic {
                first_pass_tokens[i + 1] == TokenType::GT;
     }
 
-    // - Handlers for different token types
+    // - Handlers for first pass
 
     void Lexer::HandlePreprocessor() {
         first_pass_current++;
@@ -429,7 +431,7 @@ namespace tonic {
                 {"default",   TokenType::DEFAULT},
                 {"break",     TokenType::BREAK},
                 {"const",     TokenType::CONST},
-                {"constexpr",     TokenType::CONSTEXPR},
+                {"constexpr", TokenType::CONSTEXPR},
                 {"sizeof",    TokenType::SIZEOF},
         };
 
