@@ -12,7 +12,7 @@
 
 using namespace tonic;
 
-TEST(WalkerTest, VariableDeclaration) {
+TEST(WalkerTests, VariableDeclaration) {
     Walker walker;
     bool was_called = false;
 
@@ -26,7 +26,7 @@ TEST(WalkerTest, VariableDeclaration) {
     EXPECT_TRUE(was_called);
 }
 
-TEST(WalkerTest, FunctionDeclaration) {
+TEST(WalkerTests, FunctionDeclaration) {
     Walker walker;
     bool was_called = false;
 
@@ -40,7 +40,7 @@ TEST(WalkerTest, FunctionDeclaration) {
     EXPECT_TRUE(was_called);
 }
 
-TEST(WalkerTest, Program) {
+TEST(WalkerTests, Program) {
     Walker walker;
     bool var_decl_called = false;
     bool func_decl_called = false;
@@ -63,7 +63,7 @@ TEST(WalkerTest, Program) {
     EXPECT_TRUE(func_decl_called);
 }
 
-TEST(WalkerTest, NestedNodes) {
+TEST(WalkerTests, NestedNodes) {
     Walker walker;
     bool was_called = false;
 
@@ -81,7 +81,7 @@ TEST(WalkerTest, NestedNodes) {
     EXPECT_TRUE(was_called);
 }
 
-TEST(WalkerTest, IgnoresUnregisteredNodeTypes) {
+TEST(WalkerTests, IgnoresUnregisteredNodeTypes) {
     Walker walker;
     bool was_called = false;
 
@@ -95,7 +95,7 @@ TEST(WalkerTest, IgnoresUnregisteredNodeTypes) {
     EXPECT_FALSE(was_called);
 }
 
-TEST(WalkerTest, AllNodeTypes) {
+TEST(WalkerTests, AllNodeTypes) {
     Walker walker;
     std::unordered_map<std::string, bool> node_types_visited;
 
@@ -217,4 +217,77 @@ TEST(WalkerTest, AllNodeTypes) {
     EXPECT_TRUE(node_types_visited["TryCatchStatement"]);
     EXPECT_TRUE(node_types_visited["SwitchCaseStatement"]);
     EXPECT_TRUE(node_types_visited["PairDestructuring"]);
+}
+
+TEST(WalkerTests, WithoutRegisteredHandlerDoesNotThrow) {
+    Walker walker;
+    auto node = std::make_shared<VariableDeclaration>();
+    EXPECT_NO_THROW(walker.Walk(node));
+}
+
+TEST(WalkerTests, ParentNodeIsVisitedBeforeChildNodes) {
+    Walker walker;
+    std::vector<std::string> visit_order;
+
+    walker.Register<FunctionDeclaration>([&](std::shared_ptr<FunctionDeclaration> node) {
+        visit_order.emplace_back("FunctionDeclaration");
+    });
+
+    walker.Register<Block>([&](std::shared_ptr<Block> node) {
+        visit_order.emplace_back("Block");
+    });
+
+    auto block = std::make_shared<Block>();
+    block->body.push_back(std::make_shared<FunctionDeclaration>());
+    walker.Walk(block);
+
+    ASSERT_EQ(2, visit_order.size());
+    EXPECT_EQ("Block", visit_order[0]);
+    EXPECT_EQ("FunctionDeclaration", visit_order[1]);
+}
+
+TEST(WalkerTests, WalkRecursivelyVisitsNodes) {
+    Walker walker;
+    bool visited_inner_node = false;
+
+    walker.Register<FunctionDeclaration>([&](std::shared_ptr<FunctionDeclaration> node) {
+        visited_inner_node = true;
+    });
+
+    auto outer_block = std::make_shared<Block>();
+    auto inner_block = std::make_shared<Block>();
+    inner_block->body.push_back(std::make_shared<FunctionDeclaration>());
+    outer_block->body.push_back(inner_block);
+    walker.Walk(outer_block);
+
+    EXPECT_TRUE(visited_inner_node);
+}
+
+TEST(WalkerTests, CorrectOrderOfExecution) {
+    Walker walker;
+    std::vector<std::string> visit_order;
+
+    walker.Register<VariableDeclaration>([&](std::shared_ptr<VariableDeclaration> node) {
+        visit_order.emplace_back("VariableDeclaration");
+    });
+
+    walker.Register<FunctionDeclaration>([&](std::shared_ptr<FunctionDeclaration> node) {
+        visit_order.emplace_back("FunctionDeclaration");
+    });
+
+    walker.Register<ForLoop>([&](std::shared_ptr<ForLoop> node) {
+        visit_order.emplace_back("ForLoop");
+    });
+
+    auto program_node = std::make_shared<Program>();
+    program_node->body.push_back(std::make_shared<VariableDeclaration>());
+    program_node->body.push_back(std::make_shared<FunctionDeclaration>());
+    program_node->body.push_back(std::make_shared<ForLoop>());
+
+    walker.Walk(program_node);
+
+    ASSERT_EQ(3, visit_order.size());
+    EXPECT_EQ("VariableDeclaration", visit_order[0]);
+    EXPECT_EQ("FunctionDeclaration", visit_order[1]);
+    EXPECT_EQ("ForLoop", visit_order[2]);
 }
