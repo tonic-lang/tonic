@@ -1,4 +1,7 @@
-file(GLOB TEST_SOURCES "*.cpp")
+set(TEST_SOURCES
+        errors_tests.cpp
+        frontend/lexer_tests.cpp
+        )
 
 add_executable(runTests ${TEST_SOURCES})
 
