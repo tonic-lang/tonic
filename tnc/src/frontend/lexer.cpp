@@ -190,15 +190,18 @@ namespace tonic {
                 new_tokens.emplace_back(TokenType::LAMBDA, ARROW_STR, first_pass_tokens[i].line);
                 ++i;
             } else if (CheckConst(i) || CheckConstexpr(i)) {
-                if ((i >= first_pass_tokens.size() - 1 || first_pass_tokens[i + 1] != TokenType::IDENTIFIER) ||
-                    (i <= 0 || first_pass_tokens[i - 1] != TokenType::COLON)) {
+                if (i > 0 && first_pass_tokens[i - 1] == TokenType::RPAREN && i < first_pass_tokens.size() - 1 &&
+                    first_pass_tokens[i + 1] == TokenType::COLON) {
+                    new_tokens.push_back(first_pass_tokens[i]);
+                } else if (i >= first_pass_tokens.size() - 1 || first_pass_tokens[i + 1] != TokenType::IDENTIFIER) {
                     throw SyntaxError("Please use const or constexpr before a type", first_pass_tokens[i].line,
                                       first_pass_tokens[i].lexeme, file_name);
+                } else {
+                    new_tokens.emplace_back(TokenType::TYPE,
+                                            first_pass_tokens[i].lexeme + " " + first_pass_tokens[i + 1].lexeme,
+                                            first_pass_tokens[i].line);
+                    ++i;
                 }
-                new_tokens.emplace_back(TokenType::TYPE,
-                                        first_pass_tokens[i].lexeme + " " + first_pass_tokens[i + 1].lexeme,
-                                        first_pass_tokens[i].line);
-                ++i;
             } else if (CheckType(i)) {
                 new_tokens.emplace_back(TokenType::TYPE, first_pass_tokens[i].lexeme, first_pass_tokens[i].line);
             } else if (CheckIdentifier(i)) {
@@ -211,6 +214,9 @@ namespace tonic {
                 ++i;
             } else if (CheckShiftRight(i)) {
                 new_tokens.emplace_back(TokenType::SHIFT_RIGHT, SHIFT_RIGHT_STR, first_pass_tokens[i].line);
+                ++i;
+            } else if (CheckEnumClass(i)) {
+                new_tokens.emplace_back(TokenType::ENUM_CLASS, ENUM_CLASS_STR, first_pass_tokens[i].line);
                 ++i;
             } else {
                 if (CheckSemicolon(i)) {
@@ -228,15 +234,20 @@ namespace tonic {
 
     std::vector<Token> Lexer::Tokenize() {
         first_pass_tokens = FirstPass();
-        first_pass_tokens = SecondPass();
-        return first_pass_tokens;
+        tokens = SecondPass();
+        return tokens;
     }
 
     ////////////////////////////
     // Bottom level functions //
     ////////////////////////////
 
-    // - Checker functions for second pass
+    // Checker functions for second pass
+
+    bool Lexer::CheckEnumClass(size_t i) {
+        return first_pass_tokens[i] == TokenType::ENUM && i < first_pass_tokens.size() - 1 &&
+               first_pass_tokens[i + 1] == TokenType::CLASS;
+    }
 
     bool Lexer::CheckSemicolon(size_t i) {
         return first_pass_tokens[i] == TokenType::SEMICOLON;
@@ -304,7 +315,7 @@ namespace tonic {
                first_pass_tokens[i + 1] == TokenType::GT;
     }
 
-    // - Handlers for first pass
+    // Handlers for first pass
 
     void Lexer::HandlePreprocessor() {
         first_pass_current++;
@@ -450,6 +461,8 @@ namespace tonic {
                 {"const",     TokenType::CONST},
                 {"constexpr", TokenType::CONSTEXPR},
                 {"sizeof",    TokenType::SIZEOF},
+                {"delete",    TokenType::DELETE},
+                {"enum",      TokenType::ENUM},
         };
 
         auto keyword_it = keywords.find(identifier);

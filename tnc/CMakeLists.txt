@@ -1,5 +1,7 @@
 set(SOURCES
         src/frontend/lexer.cpp
+        src/frontend/parser.cpp
+        src/ast/walker.cpp
         )
 
 add_library(tnc ${SOURCES})

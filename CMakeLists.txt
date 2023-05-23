@@ -6,9 +6,11 @@ set(CMAKE_CXX_STANDARD 23)
 include_directories(
         tnc/include
         tnc/include/frontend
+        tnc/include/ast
         tnc/include/backend
-        tnc/include/analyzers
+        tnc/include/backend/dsa
         tnc/include/tonic
+        tnc/include/analyzers
 )
 
 # gtest

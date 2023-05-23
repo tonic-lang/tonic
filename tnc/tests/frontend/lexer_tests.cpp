@@ -6,7 +6,7 @@
  * @brief Tests for the tokenizer functionality
  */
 
-#include "frontend/lexer.h"
+#include "lexer.h"
 #include "gtest/gtest.h"
 
 using tt = tonic::TokenType;
@@ -441,6 +441,246 @@ TEST(LexerTests, HexLiteral) {
             tt::IDENTIFIER,
             tt::EQ,
             tt::LITERAL,
+            tt::EOF_TOKEN
+    };
+
+    tonic::Lexer lexer(code, "test.tn");
+    std::vector<tonic::Token> tokens = lexer.Tokenize();
+
+    ASSERT_EQ(expected.size(), tokens.size()) << "Expected and result token sizes are different";
+
+    for (int i = 0; i < tokens.size(); i++) {
+        ASSERT_EQ(expected[i], tokens[i].type) << "Expected and result token is different at " << i << " and lexeme: "
+                                               << tokens[i].lexeme;
+    }
+}
+
+TEST(LexerTests, ConstReturn) {
+    std::string code = "const int foo(a, b: string):\n"
+                       "  return a + b";
+
+    std::vector<tt> expected = {
+            tt::TYPE,
+            tt::IDENTIFIER,
+            tt::LPAREN,
+            tt::IDENTIFIER,
+            tt::COMMA,
+            tt::IDENTIFIER,
+            tt::COLON,
+            tt::TYPE,
+            tt::RPAREN,
+            tt::COLON,
+            tt::NEWLINE,
+            tt::INDENT,
+            tt::RETURN,
+            tt::IDENTIFIER,
+            tt::PLUS,
+            tt::IDENTIFIER,
+            tt::EOF_TOKEN
+    };
+
+    tonic::Lexer lexer(code, "test.tn");
+    std::vector<tonic::Token> tokens = lexer.Tokenize();
+
+    ASSERT_EQ(expected.size(), tokens.size()) << "Expected and result token sizes are different";
+
+    for (int i = 0; i < tokens.size(); i++) {
+        ASSERT_EQ(expected[i], tokens[i].type) << "Expected and result token is different at " << i << " and lexeme: "
+                                               << tokens[i].lexeme;
+    }
+}
+
+TEST(LexerTests, ConstFunction) {
+    std::string code = "int foo(a, b: string) const:\n"
+                       "  return a + b";
+
+    std::vector<tt> expected = {
+            tt::TYPE,
+            tt::IDENTIFIER,
+            tt::LPAREN,
+            tt::IDENTIFIER,
+            tt::COMMA,
+            tt::IDENTIFIER,
+            tt::COLON,
+            tt::TYPE,
+            tt::RPAREN,
+            tt::CONST,
+            tt::COLON,
+            tt::NEWLINE,
+            tt::INDENT,
+            tt::RETURN,
+            tt::IDENTIFIER,
+            tt::PLUS,
+            tt::IDENTIFIER,
+            tt::EOF_TOKEN
+    };
+
+    tonic::Lexer lexer(code, "test.tn");
+    std::vector<tonic::Token> tokens = lexer.Tokenize();
+
+    ASSERT_EQ(expected.size(), tokens.size()) << "Expected and result token sizes are different";
+
+    for (int i = 0; i < tokens.size(); i++) {
+        ASSERT_EQ(expected[i], tokens[i].type) << "Expected and result token is different at " << i << " and lexeme: "
+                                               << tokens[i].lexeme;
+    }
+}
+
+TEST(LexerTests, MultilineParenthesis) {
+    std::string code = "int foo(a,\n"
+                       "        b: const int&\n"
+                       "):\n"
+                       "  return a + b";
+
+    std::vector<tt> expected = {
+            tt::TYPE,
+            tt::IDENTIFIER,
+            tt::LPAREN,
+            tt::IDENTIFIER,
+            tt::COMMA,
+            tt::NEWLINE,
+            tt::INDENT,
+            tt::IDENTIFIER,
+            tt::COLON,
+            tt::TYPE,
+            tt::NEWLINE,
+            tt::DEDENT,
+            tt::RPAREN,
+            tt::COLON,
+            tt::NEWLINE,
+            tt::INDENT,
+            tt::RETURN,
+            tt::IDENTIFIER,
+            tt::PLUS,
+            tt::IDENTIFIER,
+            tt::EOF_TOKEN
+    };
+
+    tonic::Lexer lexer(code, "test.tn");
+    std::vector<tonic::Token> tokens = lexer.Tokenize();
+
+    ASSERT_EQ(expected.size(), tokens.size()) << "Expected and result token sizes are different";
+
+    for (int i = 0; i < tokens.size(); i++) {
+        ASSERT_EQ(expected[i], tokens[i].type) << "Expected and result token is different at " << i << " and lexeme: "
+                                               << tokens[i].lexeme;
+    }
+}
+
+TEST(LexerTests, MultilineSquare) {
+    std::string code = "v = [2, 5, 7,\n"
+                       "  40]";
+
+    std::vector<tt> expected = {
+            tt::IDENTIFIER,
+            tt::EQ,
+            tt::LSQUARE,
+            tt::LITERAL,
+            tt::COMMA,
+            tt::LITERAL,
+            tt::COMMA,
+            tt::LITERAL,
+            tt::COMMA,
+            tt::NEWLINE,
+            tt::INDENT,
+            tt::LITERAL,
+            tt::RSQUARE,
+            tt::EOF_TOKEN
+    };
+
+    tonic::Lexer lexer(code, "test.tn");
+    std::vector<tonic::Token> tokens = lexer.Tokenize();
+
+    ASSERT_EQ(expected.size(), tokens.size()) << "Expected and result token sizes are different";
+
+    for (int i = 0; i < tokens.size(); i++) {
+        ASSERT_EQ(expected[i], tokens[i].type) << "Expected and result token is different at " << i << " and lexeme: "
+                                               << tokens[i].lexeme;
+    }
+}
+
+TEST(LexerTests, MultilineCurly) {
+    std::string code = "d = {'a': \"\",\n"
+                       "  'b': \"something\"}\n"
+                       "v = vector<int>{2,\n"
+                       "       8}";
+
+    std::vector<tt> expected = {
+            tt::IDENTIFIER,
+            tt::EQ,
+            tt::LCURLY,
+            tt::LITERAL,
+            tt::COLON,
+            tt::LITERAL,
+            tt::COMMA,
+            tt::NEWLINE,
+            tt::INDENT,
+            tt::LITERAL,
+            tt::COLON,
+            tt::LITERAL,
+            tt::RCURLY,
+            tt::NEWLINE,
+            tt::DEDENT,
+            tt::IDENTIFIER,
+            tt::EQ,
+            tt::IDENTIFIER,
+            tt::LCURLY,
+            tt::LITERAL,
+            tt::COMMA,
+            tt::NEWLINE,
+            tt::INDENT,
+            tt::LITERAL,
+            tt::RCURLY,
+            tt::EOF_TOKEN
+    };
+
+    tonic::Lexer lexer(code, "test.tn");
+    std::vector<tonic::Token> tokens = lexer.Tokenize();
+
+    ASSERT_EQ(expected.size(), tokens.size()) << "Expected and result token sizes are different";
+
+    for (int i = 0; i < tokens.size(); i++) {
+        ASSERT_EQ(expected[i], tokens[i].type) << "Expected and result token is different at " << i << " and lexeme: "
+                                               << tokens[i].lexeme;
+    }
+}
+
+TEST(LexerTests, Enums) {
+    std::string code = "enum class Test:\n"
+                       "  TEST1,\n"
+                       "  TEST2\n"
+                       "\n"
+                       "enum Color:\n"
+                       "  RED = 0,\n"
+                       "  BLUE = 1,";
+
+    std::vector<tt> expected = {
+            tt::ENUM_CLASS,
+            tt::IDENTIFIER,
+            tt::COLON,
+            tt::NEWLINE,
+            tt::INDENT,
+            tt::IDENTIFIER,
+            tt::COMMA,
+            tt::NEWLINE,
+            tt::IDENTIFIER,
+            tt::NEWLINE,
+            tt::NEWLINE,
+            tt::DEDENT,
+            tt::ENUM,
+            tt::IDENTIFIER,
+            tt::COLON,
+            tt::NEWLINE,
+            tt::INDENT,
+            tt::IDENTIFIER,
+            tt::EQ,
+            tt::LITERAL,
+            tt::COMMA,
+            tt::NEWLINE,
+            tt::IDENTIFIER,
+            tt::EQ,
+            tt::LITERAL,
+            tt::COMMA,
             tt::EOF_TOKEN
     };
 

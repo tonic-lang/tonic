@@ -6,9 +6,8 @@
  * @brief Abstract-level interface for the Tonic compiler
  */
 
-#ifndef TONIC_COMPILER_H
-#define TONIC_COMPILER_H
+#ifndef TNC_H
+#define TNC_H
 
 
-
-#endif //TONIC_COMPILER_H
+#endif //TNC_H

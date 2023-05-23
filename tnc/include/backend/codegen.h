@@ -11,7 +11,7 @@
 
 #include <sstream>
 
-#include "ast.h"
+#include "frontend/utils/ast.h"
 
 namespace tonic {
     std::string Generator(const VariableDeclaration &var);

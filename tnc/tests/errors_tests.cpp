@@ -18,7 +18,7 @@ TEST(ErrorsTests, CompilerErrorMessage) {
     } catch (const CompilerError &e) {
         std::string expected = "Error in file: test_file.tn\n"
                                "test prefix error near line 10: test message\n"
-                               "Found near: test content\n";
+                               "Found near: test content\n\n";
         EXPECT_STREQ(expected.c_str(), e.what());
     }
 }
@@ -29,7 +29,7 @@ TEST(ErrorsTests, EmptyContent) {
         FAIL() << "Expected CompilerError to be thrown";
     } catch (const CompilerError &e) {
         std::string expected = "Error in file: test_file.tn\n"
-                               "test prefix error near line 10: test message\n";
+                               "test prefix error near line 10: test message\n\n";
         EXPECT_STREQ(expected.c_str(), e.what());
     }
 }

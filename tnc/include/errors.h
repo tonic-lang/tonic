@@ -11,8 +11,17 @@
 
 #include <stdexcept>
 #include <sstream>
+#include <utility>
+#include <vector>
+#include <string>
 
 namespace tonic {
+
+    class InternalError : public std::runtime_error {
+    public:
+        explicit InternalError(const std::string &message)
+                : std::runtime_error("Internal error: " + message) {}
+    };
 
     class CompilerError : public std::runtime_error {
     public:
@@ -27,7 +36,9 @@ namespace tonic {
             ss << "Error in file: " << file_name << "\n";
             ss << prefix << " error near line " << line << ": " << message << "\n";
             if (!line_content.empty())
-                ss << "Found near: " << line_content << "\n";
+                ss << "Found near: " << line_content << "\n\n";
+            else
+                ss << "\n";
             return ss.str();
         }
     };
@@ -73,6 +84,37 @@ namespace tonic {
         IndentationError(const std::string &message, size_t line,
                          const std::string &line_content, const std::string &file_name)
                 : CompilerError("Indentation", message, line, line_content, file_name) {}
+    };
+
+    class MetaError {
+    public:
+        MetaError(std::string meta_prefix, std::string meta_error)
+                : meta_prefix(std::move(meta_prefix)), meta_error(std::move(meta_error)) {}
+
+        ~MetaError() = default;
+
+        void AddError(const std::string &error) {
+            errors.push_back(error);
+        }
+
+        void Throw() {
+            if (errors.empty()) {
+                throw InternalError("Error while throwing meta-error: No errors found");
+            }
+
+            std::ostringstream ss;
+            for (const auto &error: errors) {
+                ss << error << std::endl << std::endl;
+            }
+            ss << meta_prefix << " error: " << meta_error << std::endl;
+
+            throw std::runtime_error(ss.str());
+        }
+
+    private:
+        std::vector<std::string> errors;
+        std::string meta_prefix;
+        std::string meta_error;
     };
 
 }

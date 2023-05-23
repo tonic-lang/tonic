@@ -1,6 +1,8 @@
 set(TEST_SOURCES
         errors_tests.cpp
         frontend/lexer_tests.cpp
+        frontend/parser_tests.cpp
+        ast/walker_tests.cpp
         )
 
 add_executable(runTests ${TEST_SOURCES})
