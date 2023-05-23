@@ -9,7 +9,7 @@ include_directories(
         tnc/include/ast
         tnc/include/backend
         tnc/include/backend/dsa
-        tnc/include/tonic
+        tnc/include/tnc
         tnc/include/analyzers
 )
 
