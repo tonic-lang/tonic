@@ -16,56 +16,63 @@ namespace tonic {
 
     class CompilerError : public std::runtime_error {
     public:
-        CompilerError(const std::string &prefix, const std::string &message, int line, int column,
-                      const std::string &line_content)
-                : std::runtime_error(MessageBuilder(prefix, message, line, column, line_content)) {}
+        CompilerError(const std::string &prefix, const std::string &message, size_t line,
+                      const std::string &line_content, const std::string &file_name)
+                : std::runtime_error(MessageBuilder(prefix, message, line, line_content, file_name)) {}
 
     private:
-        static std::string MessageBuilder(const std::string &prefix, const std::string &message, int line, int column,
-                                          const std::string &line_content) {
+        static std::string MessageBuilder(const std::string &prefix, const std::string &message, size_t line,
+                                          const std::string &line_content, const std::string &file_name) {
             std::ostringstream ss;
-            ss << prefix << " error at line " << line << ", column " << column << ": " << message << "\n";
-            ss << line_content << "\n";
-            ss << std::string(column - 1, ' ') << "^";  // to the column with error
+            ss << "Error in file: " << file_name << "\n";
+            ss << prefix << " error near line " << line << ": " << message << "\n";
+            if (!line_content.empty())
+                ss << "Found near: " << line_content << "\n";
             return ss.str();
         }
     };
 
     class SyntaxError : public CompilerError {
     public:
-        SyntaxError(const std::string &message, int line, int column, const std::string &lineContent)
-                : CompilerError("Syntax", message, line, column, lineContent) {}
+        SyntaxError(const std::string &message, size_t line,
+                    const std::string &line_content, const std::string &file_name)
+                : CompilerError("Syntax", message, line, line_content, file_name) {}
     };
 
     class TypeError : public CompilerError {
     public:
-        TypeError(const std::string &message, int line, int column, const std::string &lineContent)
-                : CompilerError("Type", message, line, column, lineContent) {
+        TypeError(const std::string &message, size_t line,
+                  const std::string &line_content, const std::string &file_name)
+                : CompilerError("Type", message, line, line_content, file_name) {
         }
     };
 
     class NameError : public CompilerError {
     public:
-        NameError(const std::string &message, int line, int column, const std::string &lineContent)
-                : CompilerError("Name", message, line, column, lineContent) {}
+        NameError(const std::string &message, size_t line,
+                  const std::string &line_content, const std::string &file_name)
+                : CompilerError("Name", message, line, line_content, file_name) {}
     };
 
     class InputOutputError : public CompilerError {
     public:
-        InputOutputError(const std::string &message, int line, int column, const std::string &lineContent)
-                : CompilerError("I/O", message, line, column, lineContent) {}
+        InputOutputError(const std::string &message, size_t line,
+                         const std::string &line_content, const std::string &file_name)
+                : CompilerError("I/O", message, line, line_content, file_name) {}
     };
 
     class RangeError : public CompilerError {
     public:
-        RangeError(const std::string &message, int line, int column, const std::string &lineContent)
-                : CompilerError("Range", message, line, column, lineContent) {}
+        RangeError(const std::string &message, size_t line,
+                   const std::string &line_content, const std::string &file_name)
+                : CompilerError("Range", message, line, line_content, file_name) {}
     };
 
     class IndentationError : public CompilerError {
     public:
-        IndentationError(const std::string &message, int line, int column, const std::string &lineContent)
-                : CompilerError("Indentation", message, line, column, lineContent) {}
+        IndentationError(const std::string &message, size_t line,
+                         const std::string &line_content, const std::string &file_name)
+                : CompilerError("Indentation", message, line, line_content, file_name) {}
     };
 
 }

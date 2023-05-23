@@ -127,7 +127,7 @@ namespace tonic {
         int line;
 
         Token(TokenType type, std::string lexeme, int line)
-                : type(type), lexeme(std::move(lexeme)), line(line) {}
+                : type(type), lexeme(std::move(lexeme)), line(line){}
 
         friend std::ostream &operator<<(std::ostream &os, const Token &token) {
             os << token.lexeme;
@@ -141,7 +141,7 @@ namespace tonic {
 
     class Lexer {
     public:
-        explicit Lexer(std::string source);
+        explicit Lexer(std::string source, std::string file_name);
 
         std::vector<Token> FirstPass();
 
@@ -194,6 +194,9 @@ namespace tonic {
 
         bool CheckSemicolon(size_t i);
 
+        std::string get_last_first_token();
+
+        const std::string file_name;
         std::string source;
         std::vector<Token> first_pass_tokens;
         size_t first_pass_start;

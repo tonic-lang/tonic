@@ -11,13 +11,13 @@
 #include <utility>
 
 #include "lexer.h"
-#include "errors.h" // TODO: update errors, modify errors to take in line, chunk (lexeme in this case)
+#include "errors.h"
 
 namespace tonic {
 
-    Lexer::Lexer(std::string source)
+    Lexer::Lexer(std::string source, std::string file_name)
             : source(std::move(source)), first_pass_start(0), first_pass_current(0), first_pass_line(1),
-              first_pass_indentation_level(0) {}
+              first_pass_indentation_level(0), file_name(std::move(file_name)) {}
 
     ////////////////////////////////
     // Top-level tokenizer passes //
@@ -167,8 +167,8 @@ namespace tonic {
                             HandleCharacter();
                         }
                     } else {
-                        throw std::runtime_error(
-                                "Syntax error: Unexpected character at line " + std::to_string(first_pass_line));
+                        throw SyntaxError(std::string("Unexpected character ") + c, first_pass_line,
+                                          std::string(1, c), file_name);
                     }
                     break;
             }
@@ -192,7 +192,8 @@ namespace tonic {
             } else if (CheckConst(i) || CheckConstexpr(i)) {
                 if ((i >= first_pass_tokens.size() - 1 || first_pass_tokens[i + 1] != TokenType::IDENTIFIER) ||
                     (i <= 0 || first_pass_tokens[i - 1] != TokenType::COLON)) {
-                    throw std::runtime_error("Syntax error: Please use const or constexpr before a type");
+                    throw SyntaxError("Please use const or constexpr before a type", first_pass_tokens[i].line,
+                                      first_pass_tokens[i].lexeme, file_name);
                 }
                 new_tokens.emplace_back(TokenType::TYPE,
                                         first_pass_tokens[i].lexeme + " " + first_pass_tokens[i + 1].lexeme,
@@ -213,8 +214,9 @@ namespace tonic {
                 ++i;
             } else {
                 if (CheckSemicolon(i)) {
-                    throw std::runtime_error(
-                            "Syntax error: Semi-colons are not supported in this version of Tonic. Please use the #cpp directive to use C++ code");
+                    throw SyntaxError(
+                            "Semi-colons are not supported in this version of Tonic. Please use the #cpp directive to use C++ code.",
+                            first_pass_line, ";", file_name);
                 }
                 new_tokens.push_back(first_pass_tokens[i]);
             }
@@ -331,7 +333,8 @@ namespace tonic {
                 j++;
             }
             if (!ended) {
-                throw std::runtime_error("Syntax error: Need #end directive for #cpp chunk");
+                throw SyntaxError("Need #end directive for #cpp chunk", first_pass_line,
+                                  get_last_first_token(), file_name);
             }
 
             AddToken(TokenType::CPP_CHUNK, chunk);
@@ -356,8 +359,8 @@ namespace tonic {
             if (first_pass_current < source.size() - 1) {
                 first_pass_current += 2;  // To account for '*/'
             } else {
-                throw std::runtime_error(
-                        "Syntax error: Unterminated multiline comment at line " + std::to_string(first_pass_line));
+                throw SyntaxError("Unterminated multiline comment at line", first_pass_line,
+                                  get_last_first_token(), file_name);
             }
         } else {
             while (first_pass_current < source.size() && source[first_pass_current] != '\n') {
@@ -470,7 +473,8 @@ namespace tonic {
                 ++first_pass_current;
             } else if (source[first_pass_current] == '<') {
                 if (!HandleTemplateExpression()) {
-                    throw std::runtime_error("Syntax error: Invalid template expression");
+                    throw SyntaxError("Invalid template expression", first_pass_line,
+                                      get_last_first_token(), file_name);
                 }
             } else {
                 break;
@@ -490,7 +494,8 @@ namespace tonic {
                 angle_brackets_count--;
                 ++first_pass_current;
                 if (angle_brackets_count < 0) {
-                    throw std::runtime_error("Syntax error: Unmatched '>' in template expression");
+                    throw SyntaxError("Unmatched '>' in template expression", first_pass_line,
+                                      get_last_first_token(), file_name);
                 } else if (angle_brackets_count == 0) {
                     return true;
                 }
@@ -499,7 +504,8 @@ namespace tonic {
             }
         }
         if (angle_brackets_count > 0) {
-            throw std::runtime_error("Syntax error: Unmatched '<' in template expression");
+            throw SyntaxError("Unmatched '<' in template expression", first_pass_line,
+                              get_last_first_token(), file_name);
         }
         return false;
     }
@@ -543,8 +549,8 @@ namespace tonic {
         }
 
         if (first_pass_current >= source.size() || source[first_pass_current] != quote) {
-            throw std::runtime_error("Syntax error: Unterminated string at line " +
-                                     std::to_string(first_pass_line));
+            throw SyntaxError("Unterminated string", first_pass_line,
+                              get_last_first_token(), file_name);
         }
 
         ++first_pass_current;
@@ -555,18 +561,16 @@ namespace tonic {
         ++first_pass_current;
 
         if (first_pass_current >= source.size()) {
-            throw std::runtime_error(
-                    "Syntax error: Unterminated character literal at line " +
-                    std::to_string(first_pass_line));
+            throw SyntaxError("Unterminated character literal", first_pass_line,
+                              get_last_first_token(), file_name);
         }
 
         if (source[first_pass_current] == '\\') {
             ++first_pass_current;
 
             if (first_pass_current >= source.size()) {
-                throw std::runtime_error(
-                        "Syntax error: Unterminated character literal at line " +
-                        std::to_string(first_pass_line));
+                throw SyntaxError("Unterminated character literal", first_pass_line,
+                                  get_last_first_token(), file_name);
             }
 
             switch (source[first_pass_current]) {
@@ -584,22 +588,26 @@ namespace tonic {
                     ++first_pass_current;
                     break;
                 default:
-                    throw std::runtime_error(
-                            "Syntax error: Invalid escape sequence at line " +
-                            std::to_string(first_pass_line));
+                    throw SyntaxError("Invalid escape sequence", first_pass_line,
+                                      get_last_first_token(), file_name);
             }
         } else {
             ++first_pass_current;
         }
 
         if (first_pass_current >= source.size() || source[first_pass_current] != '\'') {
-            throw std::runtime_error(
-                    "Syntax error: Unterminated character literal at line " +
-                    std::to_string(first_pass_line));
+            throw SyntaxError("Unterminated character literal", first_pass_line,
+                              get_last_first_token(), file_name);
         }
 
         ++first_pass_current;
         AddToken(TokenType::LITERAL, source.substr(first_pass_start, first_pass_current - first_pass_start));
+    }
+
+    std::string Lexer::get_last_first_token() {
+        if (first_pass_tokens.empty())
+            return "";
+        return first_pass_tokens[first_pass_tokens.size() - 1].lexeme;
     }
 
 }

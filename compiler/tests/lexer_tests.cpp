@@ -40,7 +40,7 @@ TEST(LexerTests, Function) {
             tt::EOF_TOKEN,
     };
 
-    tonic::Lexer lexer(code);
+    tonic::Lexer lexer(code, "test.tn");
     std::vector<tonic::Token> tokens = lexer.Tokenize();
 
     ASSERT_EQ(expected.size(), tokens.size()) << "Expected and result token sizes are different";
@@ -80,7 +80,7 @@ TEST(LexerTests, MemberFunctionImpl) {
             tt::EOF_TOKEN,
     };
 
-    tonic::Lexer lexer(code);
+    tonic::Lexer lexer(code, "test.tn");
     std::vector<tonic::Token> tokens = lexer.Tokenize();
 
     ASSERT_EQ(expected.size(), tokens.size()) << "Expected and result token sizes are different";
@@ -142,7 +142,7 @@ TEST(LexerTests, ClassDefinition) {
             tt::EOF_TOKEN
     };
 
-    tonic::Lexer lexer(code);
+    tonic::Lexer lexer(code, "test.tn");
     std::vector<tonic::Token> tokens = lexer.Tokenize();
 
     ASSERT_EQ(expected.size(), tokens.size()) << "Expected and result token sizes are different";
@@ -202,7 +202,7 @@ TEST(LexerTests, IfStatement) {
             tt::EOF_TOKEN
     };
 
-    tonic::Lexer lexer(code);
+    tonic::Lexer lexer(code, "test.tn");
     std::vector<tonic::Token> tokens = lexer.Tokenize();
 
     ASSERT_EQ(expected.size(), tokens.size()) << "Expected and result token sizes are different";
@@ -241,7 +241,7 @@ TEST(LexerTests, CppChunk) {
             tt::EOF_TOKEN
     };
 
-    tonic::Lexer lexer(code);
+    tonic::Lexer lexer(code, "test.tn");
     std::vector<tonic::Token> tokens = lexer.Tokenize();
 
     ASSERT_EQ(expected.size(), tokens.size()) << "Expected and result token sizes are different";
@@ -286,7 +286,7 @@ TEST(LexerTests, SwitchCase) {
             tt::EOF_TOKEN
     };
 
-    tonic::Lexer lexer(code);
+    tonic::Lexer lexer(code, "test.tn");
     std::vector<tonic::Token> tokens = lexer.Tokenize();
 
     ASSERT_EQ(expected.size(), tokens.size()) << "Expected and result token sizes are different";
@@ -310,7 +310,7 @@ TEST(LexerTests, SliceRange) {
             tt::EOF_TOKEN
     };
 
-    tonic::Lexer lexer(code);
+    tonic::Lexer lexer(code, "test.tn");
     std::vector<tonic::Token> tokens = lexer.Tokenize();
 
     ASSERT_EQ(expected.size(), tokens.size()) << "Expected and result token sizes are different";
@@ -355,7 +355,7 @@ TEST(LexerTests, ForRange) {
             tt::EOF_TOKEN
     };
 
-    tonic::Lexer lexer(code);
+    tonic::Lexer lexer(code, "test.tn");
     std::vector<tonic::Token> tokens = lexer.Tokenize();
 
     ASSERT_EQ(expected.size(), tokens.size()) << "Expected and result token sizes are different";
@@ -423,7 +423,7 @@ TEST(LexerTests, ShiftsAndI0) {
             tt::EOF_TOKEN
     };
 
-    tonic::Lexer lexer(code);
+    tonic::Lexer lexer(code, "test.tn");
     std::vector<tonic::Token> tokens = lexer.Tokenize();
 
     ASSERT_EQ(expected.size(), tokens.size()) << "Expected and result token sizes are different";
@@ -444,7 +444,7 @@ TEST(LexerTests, HexLiteral) {
             tt::EOF_TOKEN
     };
 
-    tonic::Lexer lexer(code);
+    tonic::Lexer lexer(code, "test.tn");
     std::vector<tonic::Token> tokens = lexer.Tokenize();
 
     ASSERT_EQ(expected.size(), tokens.size()) << "Expected and result token sizes are different";
