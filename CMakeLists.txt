@@ -4,11 +4,11 @@ project(tonic)
 set(CMAKE_CXX_STANDARD 23)
 
 include_directories(
-        compiler/include
-        compiler/include/frontend
-        compiler/include/backend
-        compiler/include/analyzers
-        compiler/include/tonic
+        tnc/include
+        tnc/include/frontend
+        tnc/include/backend
+        tnc/include/analyzers
+        tnc/include/tonic
 )
 
 # gtest
@@ -25,4 +25,4 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 
-add_subdirectory(compiler)
+add_subdirectory(tnc)
