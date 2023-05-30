@@ -25,13 +25,17 @@ namespace tonic {
 
     class CompilerError : public std::runtime_error {
     public:
-        CompilerError(const std::string &prefix, const std::string &message, size_t line,
-                      const std::string &line_content, const std::string &file_name)
+        CompilerError(const std::string &prefix,
+                      const std::string &message, size_t line,
+                      const std::string &line_content,
+                      const std::string &file_name)
                 : std::runtime_error(MessageBuilder(prefix, message, line, line_content, file_name)) {}
 
     private:
-        static std::string MessageBuilder(const std::string &prefix, const std::string &message, size_t line,
-                                          const std::string &line_content, const std::string &file_name) {
+        static std::string MessageBuilder(const std::string &prefix,
+                                          const std::string &message, size_t line,
+                                          const std::string &line_content,
+                                          const std::string &file_name) {
             std::ostringstream ss;
             ss << "Error in file: " << file_name << "\n";
             ss << prefix << " error near line " << line << ": " << message << "\n";
@@ -45,50 +49,63 @@ namespace tonic {
 
     class SyntaxError : public CompilerError {
     public:
-        SyntaxError(const std::string &message, size_t line,
-                    const std::string &line_content, const std::string &file_name)
+        SyntaxError(const std::string &message,
+                    size_t line,
+                    const std::string &line_content,
+                    const std::string &file_name)
                 : CompilerError("Syntax", message, line, line_content, file_name) {}
     };
 
     class TypeError : public CompilerError {
     public:
-        TypeError(const std::string &message, size_t line,
-                  const std::string &line_content, const std::string &file_name)
+        TypeError(const std::string &message,
+                  size_t line,
+                  const std::string &line_content,
+                  const std::string &file_name)
                 : CompilerError("Type", message, line, line_content, file_name) {
         }
     };
 
     class NameError : public CompilerError {
     public:
-        NameError(const std::string &message, size_t line,
-                  const std::string &line_content, const std::string &file_name)
+        NameError(const std::string &message,
+                  size_t line,
+                  const std::string &line_content,
+                  const std::string &file_name)
                 : CompilerError("Name", message, line, line_content, file_name) {}
     };
 
     class InputOutputError : public CompilerError {
     public:
-        InputOutputError(const std::string &message, size_t line,
-                         const std::string &line_content, const std::string &file_name)
+        InputOutputError(const std::string &message,
+                         size_t line,
+                         const std::string &line_content,
+                         const std::string &file_name)
                 : CompilerError("I/O", message, line, line_content, file_name) {}
     };
 
     class RangeError : public CompilerError {
     public:
-        RangeError(const std::string &message, size_t line,
-                   const std::string &line_content, const std::string &file_name)
+        RangeError(const std::string &message,
+                   size_t line,
+                   const std::string &line_content,
+                   const std::string &file_name)
                 : CompilerError("Range", message, line, line_content, file_name) {}
     };
 
     class IndentationError : public CompilerError {
     public:
-        IndentationError(const std::string &message, size_t line,
-                         const std::string &line_content, const std::string &file_name)
+        IndentationError(const std::string &message,
+                         size_t line,
+                         const std::string &line_content,
+                         const std::string &file_name)
                 : CompilerError("Indentation", message, line, line_content, file_name) {}
     };
 
     class MetaError {
     public:
-        MetaError(std::string meta_prefix, std::string meta_error)
+        MetaError(std::string meta_prefix,
+                  std::string meta_error)
                 : meta_prefix(std::move(meta_prefix)), meta_error(std::move(meta_error)) {}
 
         ~MetaError() = default;
@@ -109,6 +126,10 @@ namespace tonic {
             ss << meta_prefix << " error: " << meta_error << std::endl;
 
             throw std::runtime_error(ss.str());
+        }
+
+        bool HasErrors() {
+            return !errors.empty();
         }
 
     private:

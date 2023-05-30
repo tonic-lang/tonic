@@ -19,51 +19,60 @@ namespace tonic {
 
     class Parser {
     public:
-        explicit Parser(const std::vector<Token> &tokens);
+        explicit Parser(const std::vector<Token> &tokens, std::string file_name);
 
-        std::unique_ptr<Program> Parse();
+        std::shared_ptr<Program> Parse();
 
     private:
         // parsers
         // upper level
-        std::unique_ptr<Node> ParseStatement();
+        std::shared_ptr<Node> ParseStatement();
 
-        std::unique_ptr<GeneralStatement> ParseGeneralStatement();
+        // general statements
+        std::shared_ptr<GeneralStatement> ParseGeneralStatement();
 
-        std::unique_ptr<VariableDeclaration> ParseVariableDeclaration();
+        std::shared_ptr<GeneralStatement> ParseGeneralStatement(size_t length);
 
-        std::unique_ptr<FunctionDeclaration> ParseFunctionDeclaration();
+        std::shared_ptr<GeneralStatement> ParseGeneralStatement(TokenType type);
 
-        std::unique_ptr<Node> ParseForLoop();
+        std::shared_ptr<GeneralStatement> ParseGeneralStatement(const std::vector<TokenType> &types);
 
-        std::unique_ptr<WhileLoop> ParseWhileLoop();
+        std::shared_ptr<VariableDeclaration> ParseVariableDeclaration();
 
-        std::unique_ptr<InputOutput> ParseInputOutput();
+        std::shared_ptr<FunctionDeclaration> ParseFunctionDeclaration();
 
-        std::unique_ptr<ClassDeclaration> ParseClassDeclaration();
+        std::shared_ptr<Node> ParseForLoop();
 
-        std::unique_ptr<StructDeclaration> ParseStructDeclaration();
+        std::shared_ptr<WhileLoop> ParseWhileLoop();
 
-        std::unique_ptr<NamespaceDeclaration> ParseNamespaceDeclaration();
+        std::shared_ptr<InputOutput> ParseInputOutput();
 
-        std::unique_ptr<TemplateDeclaration> ParseTemplateDeclaration();
+        std::shared_ptr<ClassDeclaration> ParseClassDeclaration();
 
-        std::unique_ptr<IfStatement> ParseIfStatement();
+        std::shared_ptr<StructDeclaration> ParseStructDeclaration();
 
-        std::unique_ptr<TryCatchStatement> ParseTryCatchStatement();
+        std::shared_ptr<NamespaceDeclaration> ParseNamespaceDeclaration();
 
-        std::unique_ptr<SwitchCaseStatement> ParseSwitchCaseStatement();
+        std::shared_ptr<TemplateDeclaration> ParseTemplateDeclaration();
 
-        std::unique_ptr<CppNode> ParseCppNode();
+        std::shared_ptr<IfStatement> ParseIfStatement();
+
+        std::shared_ptr<TryCatchStatement> ParseTryCatchStatement();
+
+        std::shared_ptr<SwitchCaseStatement> ParseSwitchCaseStatement();
+
+        std::shared_ptr<CppNode> ParseCppNode();
 
         // lower level
-        std::unique_ptr<Block> ParseBlock();
+        std::shared_ptr<Block> ParseBlock();
 
-        std::unique_ptr<LambdaExpression> ParseLambdaExpression();
+        std::shared_ptr<LambdaExpression> ParseLambdaExpression();
 
-        std::unique_ptr<PairDestructuring> ParsePairDestructuring();
+        std::shared_ptr<PairDestructuring> ParsePairDestructuring();
 
-        std::unique_ptr<Node> ParseListComprehension();
+        std::shared_ptr<Node> ParseListComprehension();
+
+        std::shared_ptr<Node> ParseForStatement();
 
         // helpers
         bool Match(TokenType type);
@@ -84,11 +93,15 @@ namespace tonic {
 
         void SynchronizeError();
 
-        std::string GenerateStringUntil(TokenType type);
+        size_t CurrentLine();
 
-        std::vector<std::string> errors;
+        void Throw(const std::string& message);
+
+        bool CheckTokenInLine(TokenType type);
+
         const std::vector<Token> &tokens;
         size_t current;
+        std::string file_name;
     };
 
 }

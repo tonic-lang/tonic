@@ -53,7 +53,7 @@ namespace tonic {
         std::string data_type;
         DeclarationType declaration_type;
         std::shared_ptr<GeneralStatement> identifier;
-        std::shared_ptr<GeneralStatement> initializer;
+        std::shared_ptr<Node> initializer;
 
         VariableDeclaration() : data_type(AUTO), declaration_type(DeclarationType::DECLARATION), identifier(nullptr),
                                 initializer(nullptr) {}
@@ -70,6 +70,7 @@ namespace tonic {
     };
 
     struct ForLoop : Node {
+        std::string id_type;
         std::shared_ptr<GeneralStatement> identifier;
         std::shared_ptr<GeneralStatement> start;
         std::shared_ptr<GeneralStatement> end;
@@ -77,17 +78,17 @@ namespace tonic {
         std::shared_ptr<GeneralStatement> operation; // for list comprehension
         std::shared_ptr<Block> block;
 
-        ForLoop() : identifier(nullptr), start(nullptr), end(nullptr), step(nullptr), operation(nullptr) {}
+        ForLoop() : id_type(AUTO), identifier(nullptr), start(nullptr), end(nullptr), step(nullptr), operation(nullptr) {}
     };
 
     struct RangedLoop : Node {
-        std::string type; // optional type
+        std::string id_type;
         std::shared_ptr<GeneralStatement> identifier;
         std::shared_ptr<GeneralStatement> object;
         std::shared_ptr<GeneralStatement> operation; // for list comprehension
         std::shared_ptr<Block> block;
 
-        RangedLoop() : identifier(nullptr), object(nullptr), operation(nullptr), block(nullptr) {}
+        RangedLoop() : id_type(AUTO), identifier(nullptr), object(nullptr), operation(nullptr), block(nullptr) {}
     };
 
     struct WhileLoop : Node {

@@ -98,6 +98,7 @@ namespace tonic {
         DELETE,
         ENUM_CLASS,
         ENUM,
+        STEP,
 
         // preprocessor directives
         HASHTAG,

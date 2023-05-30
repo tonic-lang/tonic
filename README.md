@@ -1,7 +1,7 @@
 # Tonic
 A superset language of C++, designed specifically for fast-paced competitive programming. Tonic makes competing much faster to save those precious seconds, without sacrificing runtime speed.
 
-Currently in (very) early stages of development.
+**Currently in early stages of development. So far the lexer, AST systems have been implemented, with parser and code generator remaining for a POC.**
 
 ## Why Tonic?
 - Aims to be significantly less verbose than C++, geared towards competitions.

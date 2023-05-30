@@ -324,7 +324,7 @@ TEST(LexerTests, SliceRange) {
 TEST(LexerTests, ForRange) {
     std::string code = "for i in 0..20:\n"
                        "  out i\n"
-                       "for i in start..end:\n"
+                       "for i in start..end step i < 20:\n"
                        "  out i";
 
     std::vector<tt> expected = {
@@ -347,6 +347,10 @@ TEST(LexerTests, ForRange) {
             tt::IDENTIFIER,
             tt::FOR_RANGE,
             tt::IDENTIFIER,
+            tt::STEP,
+            tt::IDENTIFIER,
+            tt::LT,
+            tt::LITERAL,
             tt::COLON,
             tt::NEWLINE,
             tt::INDENT,

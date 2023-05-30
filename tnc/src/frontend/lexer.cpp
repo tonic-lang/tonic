@@ -463,6 +463,7 @@ namespace tonic {
                 {"sizeof",    TokenType::SIZEOF},
                 {"delete",    TokenType::DELETE},
                 {"enum",      TokenType::ENUM},
+                {"step",      TokenType::STEP},
         };
 
         auto keyword_it = keywords.find(identifier);

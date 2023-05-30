@@ -6,12 +6,14 @@
  * @brief Generates C++ code based on Tonic ASTs
  */
 
+// TODO use Walker for AST
+
 #ifndef TONIC_CODEGEN_H
 #define TONIC_CODEGEN_H
 
 #include <sstream>
 
-#include "frontend/utils/ast.h"
+#include "ast.h"
 
 namespace tonic {
     std::string Generator(const VariableDeclaration &var);

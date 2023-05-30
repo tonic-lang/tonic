@@ -6,5 +6,12 @@
  * @brief Tests for parser
  */
 
+#include "parser.h"
+#include "gtest/gtest.h"
+
+TEST(ParserTests, VariableDeclaration) {
+    
+}
+
 // const, constexpr variables or const functions too
 // destructor, constructor
