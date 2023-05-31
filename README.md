@@ -17,6 +17,9 @@ A superset language of C++, designed specifically for fast-paced competitive pro
 ## Current state
 Currently, I'm working towards a working version of Tonic with minimal error handling. For instance, certain statements that are direct C++ equivalents are directly transferred to the codegen for C++ representation in the current implementation. This will change with time and traction.
 
+### Implementation
+- Parse trees are bypassed in this implementation, as tokens are directly parsed to AST. However, with growing complexity, parse trees will prove useful.
+
 ## Use the web compiler to C++
 WIP
 
