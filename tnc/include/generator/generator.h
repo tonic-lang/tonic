@@ -3,13 +3,11 @@
  * Please find the license in the repository .LICENSE file here:
  * https://github.com/tonic-lang/tonic/blob/main/LICENSE
  *
- * @brief Generates C++ code based on Tonic ASTs
+ * @brief Code generator to C++
  */
 
-// TODO use Walker for AST
-
-#ifndef TONIC_CODEGEN_H
-#define TONIC_CODEGEN_H
+#ifndef TONIC_GENERATOR_H
+#define TONIC_GENERATOR_H
 
 #include <sstream>
 
@@ -19,4 +17,4 @@ namespace tonic {
     std::string Generator(const VariableDeclaration &var);
 }
 
-#endif //TONIC_CODEGEN_H
+#endif //TONIC_GENERATOR_H

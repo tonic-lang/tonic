@@ -3,11 +3,10 @@
  * Please find the license in the repository .LICENSE file here:
  * https://github.com/tonic-lang/tonic/blob/main/LICENSE
  *
- * @brief Analyzes for optimization opportunities for redundancies
- * or frequently used values
+ * @brief Semantic analysis
  */
 
-#ifndef TONIC_DATA_FLOW_H
-#define TONIC_DATA_FLOW_H
+#ifndef TONIC_SEMANTIC_H
+#define TONIC_SEMANTIC_H
 
-#endif //TONIC_DATA_FLOW_H
+#endif //TONIC_SEMANTIC_H

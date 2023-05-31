@@ -28,7 +28,7 @@ namespace tonic {
         while (!CheckEnd()) {
             try {
                 program->body.push_back(ParseStatement());
-            } catch (const CompilerError &e) {
+            } catch (const SyntaxError &e) {
                 error.AddError(e.what());
                 SynchronizeError();
             }
