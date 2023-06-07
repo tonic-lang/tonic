@@ -324,7 +324,7 @@ TEST(LexerTests, SliceRange) {
 TEST(LexerTests, ForRange) {
     std::string code = "for i in 0..20:\n"
                        "  out i\n"
-                       "for i in start..end step i < 20:\n"
+                       "for i in start..end:\n"
                        "  out i";
 
     std::vector<tt> expected = {
@@ -347,10 +347,6 @@ TEST(LexerTests, ForRange) {
             tt::IDENTIFIER,
             tt::FOR_RANGE,
             tt::IDENTIFIER,
-            tt::STEP,
-            tt::IDENTIFIER,
-            tt::LT,
-            tt::LITERAL,
             tt::COLON,
             tt::NEWLINE,
             tt::INDENT,
@@ -375,8 +371,8 @@ TEST(LexerTests, ShiftsAndI0) {
                        "ostrm.write(reinterpret_cast<char*>(&d), sizeof d)\n"
                        "ostrm << 123 << \"abc\" << '\\n'\n"
                        "a: int\n"
-                       "in << a\n"
-                       "out >> \"output: \" >> a >> '\\n'";
+                       "in >> a\n"
+                       "out << \"output: \" << a << '\\n'";
 
     std::vector<tt> expected = {
             tt::TYPE,
@@ -414,15 +410,15 @@ TEST(LexerTests, ShiftsAndI0) {
             tt::TYPE,
             tt::NEWLINE,
             tt::IN,
-            tt::SHIFT_LEFT,
+            tt::SHIFT_RIGHT,
             tt::IDENTIFIER,
             tt::NEWLINE,
             tt::OUT,
-            tt::SHIFT_RIGHT,
+            tt::SHIFT_LEFT,
             tt::LITERAL,
-            tt::SHIFT_RIGHT,
+            tt::SHIFT_LEFT,
             tt::IDENTIFIER,
-            tt::SHIFT_RIGHT,
+            tt::SHIFT_LEFT,
             tt::LITERAL,
             tt::EOF_TOKEN
     };
@@ -686,6 +682,56 @@ TEST(LexerTests, Enums) {
             tt::LITERAL,
             tt::COMMA,
             tt::EOF_TOKEN
+    };
+
+    tonic::Lexer lexer(code, "test.tn");
+    std::vector<tonic::Token> tokens = lexer.Tokenize();
+
+    ASSERT_EQ(expected.size(), tokens.size()) << "Expected and result token sizes are different";
+
+    for (int i = 0; i < tokens.size(); i++) {
+        ASSERT_EQ(expected[i], tokens[i].type) << "Expected and result token is different at " << i << " and lexeme: "
+                                               << tokens[i].lexeme;
+    }
+}
+
+TEST(LexerTests, NestedLoops) {
+    std::string code = "for a, b, c: int in arr, 0..10, 0..obj.foo():\n"
+                       "  out a << b << c";
+
+    std::vector<tt> expected = {
+            tt::FOR,
+            tt::IDENTIFIER,
+            tt::COMMA,
+            tt::IDENTIFIER,
+            tt::COMMA,
+            tt::IDENTIFIER,
+            tt::COLON,
+            tt::TYPE,
+            tt::IN,
+            tt::IDENTIFIER,
+            tt::COMMA,
+            tt::LITERAL,
+            tt::FOR_RANGE,
+            tt::LITERAL,
+            tt::COMMA,
+            tt::LITERAL,
+            tt::FOR_RANGE,
+            tt::IDENTIFIER,
+            tt::DOT,
+            tt::IDENTIFIER,
+            tt::LPAREN,
+            tt::RPAREN,
+            tt::COLON,
+            tt::NEWLINE,
+            tt::INDENT,
+            tt::OUT,
+            tt::IDENTIFIER,
+            tt::SHIFT_LEFT,
+            tt::IDENTIFIER,
+            tt::SHIFT_LEFT,
+            tt::IDENTIFIER,
+            tt::EOF_TOKEN,
     };
 
     tonic::Lexer lexer(code, "test.tn");
