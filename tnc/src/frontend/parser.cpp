@@ -101,31 +101,26 @@ namespace tonic {
     // Lower level
 
     std::shared_ptr<Node> Parser::ParseListComprehension() {
-        auto for_loop = std::make_shared<ForLoop>(); // might need ranged loop depending on statement
+        Advance(); // [
 
-        Advance();
+        std::shared_ptr<GeneralStatement> till_for = ParseGeneralStatement(TokenType::FOR);
 
-        // use special parser
+        std::shared_ptr<Node> for_stmt = ParseForStatement();
 
-        // change this to general statement first (until for), then rbracket
-        // allow multiline
-        while (!Match(TokenType::RSQUARE)) {
-            if (CheckEnd())
-                Throw("Closing square bracket missing");
+        auto for_loop = std::dynamic_pointer_cast<ForLoop>(for_stmt);
+        auto ranged_loop = std::dynamic_pointer_cast<RangedLoop>(for_stmt);
 
-            if (Match(TokenType::FOR))
-
-
-                Advance();
+        if (for_loop) {
+            for_loop->operation = till_for;
+            return for_loop;
+        } else if (ranged_loop) {
+            ranged_loop->operation = till_for;
+            return ranged_loop;
+        } else {
+            Throw("Loop parsing error");
         }
 
-        if (!Match(TokenType::RSQUARE))
-            Throw("Closing square bracket missing");
-
-        for_loop->operation = ParseGeneralStatement(TokenType::FOR);
-
-
-        return for_loop;
+        return nullptr; // unreachable
     }
 
     std::shared_ptr<Node> Parser::ParseForStatement() {
