@@ -105,7 +105,11 @@ namespace tonic {
 
         Advance();
 
-        // use special parser
+        std::shared_ptr<GeneralStatement> operation = ParseGeneralStatement(TokenType::FOR);
+
+        std::shared_ptr<Node> for_stmt = ParseForStatement();
+
+        
 
         // change this to general statement first (until for), then rbracket
         // allow multiline
