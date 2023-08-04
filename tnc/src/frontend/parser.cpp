@@ -8,7 +8,7 @@
  */
 
 #include "parser.h"
-#include "errors.h"
+#include "errors/errors.h"
 
 namespace tonic {
 
@@ -154,9 +154,9 @@ namespace tonic {
 
         Advance();
 
-        bool is_for = CheckTokenInLine(TokenType::FOR_RANGE);
+        bool is_manual = CheckTokenInLine(TokenType::FOR_RANGE);
 
-        if (is_for) {
+        if (is_manual) {
             auto for_loop = std::make_shared<ForLoop>();
             for_loop->identifier = identifier;
             for_loop->id_type = id_type;

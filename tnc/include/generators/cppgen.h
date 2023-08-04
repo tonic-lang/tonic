@@ -11,10 +11,12 @@
 
 #include <sstream>
 
-#include "ast.h"
+#include "core/ast.h"
 
 namespace tonic {
-    std::string Generator(const VariableDeclaration &var);
+    namespace cppgen {
+        std::string Generate(const VariableDeclaration &var);
+    }
 }
 
 #endif //TONIC_GENERATOR_H

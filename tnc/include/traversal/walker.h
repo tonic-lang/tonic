@@ -14,7 +14,7 @@
 #include <functional>
 #include <unordered_map>
 
-#include "ast.h"
+#include "core/ast.h"
 
 namespace tonic {
 

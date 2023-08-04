@@ -7,7 +7,7 @@
  * heavily in semantic analysis
  */
 
-#include "walker.h"
+#include "traversal/walker.h"
 
 namespace tonic {
 

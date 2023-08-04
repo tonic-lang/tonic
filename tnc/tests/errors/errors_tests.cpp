@@ -7,7 +7,7 @@
  */
 
 #include "gtest/gtest.h"
-#include "errors.h"
+#include "errors/errors.h"
 
 using namespace tonic;
 

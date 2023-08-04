@@ -11,7 +11,7 @@
 #include <utility>
 
 #include "lexer.h"
-#include "errors.h"
+#include "errors/errors.h"
 
 namespace tonic {
 

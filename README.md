@@ -9,6 +9,7 @@ A superset language of C++, designed specifically for fast-paced competitive pro
 - Low abstraction or overhead to keep runtime speed intact.
 - Some competitive programming specific functionality including additional data structures, algorithms, tracing and debugging capabilities (in-progress).
 - Since it compiles to C++ as a superset, the code can be directly used in competitions that support C++.
+- Fast frontend and transpiler due to competitions.
 
 ## Documentation
 [Quick start](about:blank)<br />

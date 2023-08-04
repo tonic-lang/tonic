@@ -18,7 +18,7 @@
 #include <utility>
 #include <vector>
 
-#include "tokens.h"
+#include "core/tokens.h"
 
 namespace tonic {
 

@@ -8,7 +8,7 @@
 
 #include "gtest/gtest.h"
 
-#include "walker.h"
+#include "traversal/walker.h"
 
 using namespace tonic;
 

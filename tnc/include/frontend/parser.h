@@ -13,7 +13,7 @@
 #include <memory>
 
 #include "lexer.h"
-#include "ast.h"
+#include "core/ast.h"
 
 namespace tonic {
 
