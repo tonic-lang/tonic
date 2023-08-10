@@ -19,8 +19,6 @@ namespace tonic {
     // Parser functions //
     //////////////////////
 
-    // Upper level
-
     std::shared_ptr<Program> Parser::Parse() {
         auto program = std::make_shared<Program>();
         MetaError error("Parser", "Parsing failed");
@@ -97,8 +95,6 @@ namespace tonic {
 
         return variable_declaration;
     }
-
-    // Lower level
 
     std::shared_ptr<Node> Parser::ParseListComprehension() {
         auto for_loop = std::make_shared<ForLoop>(); // might need ranged loop depending on statement
@@ -185,6 +181,66 @@ namespace tonic {
         }
     }
 
+    std::shared_ptr<FunctionDeclaration> Parser::ParseFunctionDeclaration() {
+        return {};
+    }
+
+    std::shared_ptr<Node> Parser::ParseForLoop() {
+        return {};
+    }
+
+    std::shared_ptr<WhileLoop> Parser::ParseWhileLoop() {
+        return {};
+    }
+
+    std::shared_ptr<InputOutput> Parser::ParseInputOutput() {
+        return {};
+    }
+
+    std::shared_ptr<ClassDeclaration> Parser::ParseClassDeclaration() {
+        return {};
+    }
+
+    std::shared_ptr<StructDeclaration> Parser::ParseStructDeclaration() {
+        return {};
+    }
+
+    std::shared_ptr<NamespaceDeclaration> Parser::ParseNamespaceDeclaration() {
+        return {};
+    }
+
+    std::shared_ptr<TemplateDeclaration> Parser::ParseTemplateDeclaration() {
+        return {};
+    }
+
+    std::shared_ptr<IfStatement> Parser::ParseIfStatement() {
+        return {};
+    }
+
+    std::shared_ptr<TryCatchStatement> Parser::ParseTryCatchStatement() {
+        return {};
+    }
+
+    std::shared_ptr<SwitchCaseStatement> Parser::ParseSwitchCaseStatement() {
+        return {};
+    }
+
+    std::shared_ptr<CppNode> Parser::ParseCppNode() {
+        return {};
+    }
+
+    std::shared_ptr<Block> Parser::ParseBlock() {
+        return {};
+    }
+
+    std::shared_ptr<LambdaExpression> Parser::ParseLambdaExpression() {
+        return {};
+    }
+
+    std::shared_ptr<PairDestructuring> Parser::ParsePairDestructuring() {
+        return {};
+    }
+
     // Parsing general statements
 
     std::shared_ptr<GeneralStatement> Parser::ParseGeneralStatement() {
@@ -194,6 +250,8 @@ namespace tonic {
             general_statement->statement += Advance().lexeme;
             general_statement->statement += ' ';
         }
+
+        general_statement->RemoveLast();
 
         Advance();
         return general_statement;
@@ -206,6 +264,8 @@ namespace tonic {
             general_statement->statement += Advance().lexeme;
             general_statement->statement += ' ';
         }
+
+        general_statement->RemoveLast();
 
         if (Match(TokenType::NEWLINE))
             Advance();
@@ -221,6 +281,8 @@ namespace tonic {
             general_statement->statement += ' ';
         }
 
+        general_statement->RemoveLast();
+
         if (Match(TokenType::NEWLINE))
             Advance();
 
@@ -234,6 +296,8 @@ namespace tonic {
             general_statement->statement += Advance().lexeme;
             general_statement->statement += ' ';
         }
+
+        general_statement->RemoveLast();
 
         if (Match(TokenType::NEWLINE))
             Advance();
@@ -311,7 +375,7 @@ namespace tonic {
     bool Parser::CheckTokenInLine(TokenType type) {
         size_t i = current;
 
-        while (i >= tokens.size() && tokens[i] != TokenType::NEWLINE && tokens[i] != TokenType::EOF_TOKEN) {
+        while (i < tokens.size() && tokens[i] != TokenType::NEWLINE && tokens[i] != TokenType::EOF_TOKEN) {
             if (tokens[i] == type)
                 return true;
 

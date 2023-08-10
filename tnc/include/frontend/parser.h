@@ -23,7 +23,6 @@ namespace tonic {
 
         std::shared_ptr<Program> Parse();
 
-    private:
         // parsers
         // upper level
         std::shared_ptr<Node> ParseStatement();
@@ -74,6 +73,7 @@ namespace tonic {
 
         std::shared_ptr<Node> ParseForStatement();
 
+    private:
         // helpers
         bool Match(TokenType type);
 

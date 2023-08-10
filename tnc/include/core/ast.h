@@ -35,8 +35,14 @@ namespace tonic {
         std::vector<std::shared_ptr<Node>> body;
     };
 
-    struct GeneralStatement : Node { // direct C++ statement: function calls, operators, ..
+    struct GeneralStatement : Node {
         std::string statement;
+
+        void RemoveLast() {
+            if (!statement.empty()) {
+                statement.pop_back();
+            }
+        }
     };
 
     struct CppNode : Node {
