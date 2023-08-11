@@ -33,7 +33,7 @@ TEST(ParserTests, ManualForStatementDecleration) {
 }
 
 TEST(ParserTests, RangedForStatementDecleration) {
-    std::string statement = "for o in vec";
+    std::string statement = "for o in vec:";
 
     Lexer l(statement, file);
     std::vector<Token> tokens = l.Tokenize();
@@ -70,7 +70,7 @@ TEST(ParserTests, ManualForStatementWithType) {
 }
 
 TEST(ParserTests, ManualRangedStatementWithType) {
-    std::string statement = "for o: int& in vec";
+    std::string statement = "for o: int& in vec:";
 
     Lexer l(statement, file);
     std::vector<Token> tokens = l.Tokenize();
