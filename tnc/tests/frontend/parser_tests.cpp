@@ -86,3 +86,6 @@ TEST(ParserTests, ManualRangedStatementWithType) {
     ASSERT_EQ(ranged_node->object->statement, "vec");
     ASSERT_EQ(ranged_node->id_type, "int&");
 }
+
+// list compr, const, constexpr variables or const functions too
+// destructor, constructor
